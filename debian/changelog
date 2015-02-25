@@ -1,3 +1,13 @@
+pristine-tar (1.33) unstable; urgency=medium
+
+  * QA upload.
+  * Fix "depend on perl instead of perl-modules":
+    debian/control: update Depends to use ${perl:Depends} which gets expanded
+    to 'perl' by dh_perl.
+    (Closes: #779116)
+
+ -- gregor herrmann <gregoa@debian.org>  Wed, 25 Feb 2015 20:50:23 +0100
+
 pristine-tar (1.32) unstable; urgency=medium
 
   * Orphaned the package.
