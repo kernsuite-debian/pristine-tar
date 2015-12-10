@@ -1,15 +1,35 @@
 Name: pristine-tar
 Version: 1.35
 Release: 2%{?dist}
-Summary: regenerate pristine tarballs
+Summary: Regenerate pristine tarballs
 
 Group: System Tools
 License: GPLv2
 Url: http://kitenet.net/~joey/code/pristine-tar/
 Source0: http://ftp.debian.org/debian/pool/main/p/pristine-tar/%{name}_%{version}.tar.gz
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires: git, xdelta
+Requires:   tar
+Requires:   gzip
+Requires:   bzip2
+%if 0%{?suse_version} || 0%{?fedora}
+Recommends: pbzip2
+%endif
+Requires:   git
+%if 0%{?suse_version}
+Requires:   perl-base
+%else
+Requires:   perl
+%endif
+%if 0%{?fedora} || 0%{?centos_ver} >= 7
+Requires:   xdelta1
+%else
+Requires:   xdelta < 3
+%endif
+BuildRequires:  pkgconfig(zlib)
+BuildRequires:  perl(ExtUtils::MakeMaker)
+%if 0%{?suse_version}
+BuildRequires:  fdupes
+%endif
 
 %description
 pristine-tar can regenerate a pristine upstream tarball using only a
@@ -31,17 +51,23 @@ pristine-tar is available in git at git://git.kitenet.net/pristine-tar/
 
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix}
+%if 0%{?fedora} || 0%{?centos_ver} >= 7
+%define makemaker_extraopts XDELTA_PROGRAM=xdelta1
+%endif
+perl Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix} %{?makemaker_extraopts}
 make %{?_smp_mflags}
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+rm -rf %{buildroot}
+%make_install
 
+find %{buildroot}/usr/lib/pristine-tar/ -name '*.a' | xargs rm
 
-%clean
-rm -rf $RPM_BUILD_ROOT
+# Run fdupes if building in openSUSE
+%if 0%{?suse_version}
+%fdupes -s %{buildroot}/usr/lib/pristine-tar/
+%endif
 
 
 %files
@@ -49,6 +75,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc GPL TODO delta-format.txt
 %{_bindir}/*
 %{_mandir}/*
+/usr/lib/pristine-tar
+%{perl_vendorlib}/*
+%{perl_archlib}/*
+%exclude %{perl_vendorarch}
 
 
 %changelog
