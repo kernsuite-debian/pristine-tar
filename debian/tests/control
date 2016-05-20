@@ -1,1 +1,3 @@
 Test-Command: perl test.pl 2>&1
+Depends: @, shunit2, git
+Restrictions: needs-recommends
