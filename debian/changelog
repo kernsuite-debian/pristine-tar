@@ -1,3 +1,9 @@
+pristine-tar (1.34) UNRELEASED; urgency=medium
+
+  * [...]
+
+ -- Antonio Terceiro <terceiro@debian.org>  Fri, 20 May 2016 18:36:27 -0300
+
 pristine-tar (1.33) unstable; urgency=medium
 
   * QA upload.
