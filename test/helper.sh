@@ -20,6 +20,8 @@ git_init() {
   mkdir "$repo"
   cd "$repo"
   git init
+  git config user.name 'Test User'
+  git config user.email 'test@example.com'
 }
 
 import_tarball() {
