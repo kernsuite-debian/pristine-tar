@@ -14,6 +14,14 @@ if [ -z "$ADTTMP" ]; then
   export PERL5LIB="$SRCDIR/blib/lib"
 fi
 
+{
+  set -e
+  if [ ! -f Makefile ]; then
+    perl Makefile.PL
+  fi
+  make
+}
+
 setUp() {
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR"
