@@ -3,8 +3,6 @@ use warnings;
 
 my $rc = 0;
 
-(system('make') == 0) or die("make failed");
-
 if (scalar(@ARGV) == 0) {
   @ARGV = glob('test/test_*.sh');
 }
