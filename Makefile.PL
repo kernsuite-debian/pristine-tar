@@ -61,7 +61,7 @@ zgz.1: zgz/zgz.pod
 	pod2man -c zgz zgz/zgz.pod           > zgz.1
 
 extra_build: zgz/zgz pristine-tar.spec $(manpages) zgz.1
-	@$(MAKE) --quiet -C pit/suse-bzip2 PREFIX=$(PREFIX)
+	@$(MAKE) -C pit/suse-bzip2 PREFIX=$(PREFIX)
 
 ZGZ_SOURCES = zgz/zgz.c zgz/gzip/*.c zgz/old-bzip2/*.c
 zgz/zgz: $(ZGZ_SOURCES)
