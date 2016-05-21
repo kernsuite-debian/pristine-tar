@@ -19,7 +19,11 @@ unless ($ENV{ADTTMP}) {
   printf "\n"
 }
 
-for my $test (glob('test/test_*.sh')) {
+if (scalar(@ARGV) == 0) {
+  @ARGV = glob('test/test_*.sh');
+}
+
+for my $test (@ARGV) {
   printf("%s\n", $test);
   printf("%s\n", '-' x length($test));
   printf("\n");
