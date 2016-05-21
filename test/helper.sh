@@ -2,6 +2,13 @@ CURDIR=$(pwd)
 SAMPLES=$(readlink -f $(dirname $0))/samples
 SRCDIR=$(readlink -f $(dirname $0)/..)
 
+if which diffoscope > /dev/null; then
+  COMPARE=diffoscope
+else
+  COMPARE=true
+  echo "I: install diffoscope to compare files beyond their hash"
+fi
+
 if [ -z "$ADTTMP" ]; then
   export PATH="$SRCDIR/blib/script":"$SRCDIR/zgz":"$PATH"
   export PERL5LIB="$SRCDIR/blib/lib"
@@ -39,6 +46,7 @@ import_tarball() {
 }
 
 assertHashEquals() {
+  $COMPARE "$1" "$2"
   sha1_1=$(get_sha1 "$1")
   sha1_2=$(get_sha1 "$2")
   assertEquals "$sha1_1" "$sha1_2"
