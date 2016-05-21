@@ -1,5 +1,11 @@
 CURDIR=$(pwd)
 SAMPLES=$(readlink -f $(dirname $0))/samples
+SRCDIR=$(readlink -f $(dirname $0)/..)
+
+if [ -z "$ADTTMP" ]; then
+  export PATH="$SRCDIR/blib/script":"$SRCDIR/zgz":"$PATH"
+  export PERL5LIB="$SRCDIR/blib/lib"
+fi
 
 setUp() {
   TMPDIR=$(mktemp -d)
