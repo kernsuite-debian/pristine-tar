@@ -2,13 +2,19 @@ use strict;
 use warnings;
 
 use File::Basename;
+use File::Spec;
 
 my $rc = 0;
 
 unless ($ENV{ADTTMP}) {
-  my $srcdir = dirname($0);
+  my $srcdir = File::Spec->rel2abs(dirname($0));
   $ENV{PATH} = join(':', "$srcdir/blib/script", "$srcdir/zgz", $ENV{PATH});
   $ENV{PERL5LIB} = "$srcdir/blib/lib";
+  printf "Setting environment for build-time test\n";
+  printf "---------------------------------------\n";
+  printf "PATH = %s\n", $ENV{PATH};
+  printf "PERL5LIB = %s\n", $ENV{PERL5LIB};
+  printf "\n"
 }
 
 for my $test (glob('test/test_*.sh')) {
