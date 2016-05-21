@@ -27,7 +27,7 @@ Joey Hess
 
 Note that several of the above donors would be very suprised at finding
 parts of themselves ... er, their work ... shambling around here. Please
-direct correspondance and/or flaming pitchforks to the pristine-tar
+direct correspondence and/or flaming pitchforks to the pristine-tar
 maintainers.
 
 =cut
