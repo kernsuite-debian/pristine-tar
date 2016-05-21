@@ -6,6 +6,8 @@ use File::Spec;
 
 my $rc = 0;
 
+(system('make') == 0) or die("make failed");
+
 unless ($ENV{ADTTMP}) {
   my $srcdir = File::Spec->rel2abs(dirname($0));
   $ENV{PATH} = join(':', "$srcdir/blib/script", "$srcdir/zgz", $ENV{PATH});
