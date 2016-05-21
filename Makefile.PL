@@ -52,13 +52,16 @@ endif
 LIBDIR ?= $(PREFIX)/lib
 PKGLIBDIR ?= $(LIBDIR)/pristine-tar
 
-extra_build: zgz/zgz pristine-tar.spec
-	pod2man -c pristine-tar pristine-tar > pristine-tar.1
-	pod2man -c pristine-gz  pristine-gz  > pristine-gz.1
-	pod2man -c pristine-bz2 pristine-bz2 > pristine-bz2.1
-	pod2man -c pristine-xz pristine-xz > pristine-xz.1
-	pod2man -c zgz zgz/zgz.pod > zgz.1
-	$(MAKE) -C pit/suse-bzip2 PREFIX=$(PREFIX)
+manpages = pristine-tar.1 pristine-gz.1  pristine-bz2.1 pristine-xz.1
+
+$(manpages): %.1 : %
+	pod2man -c $< $< > $@
+
+zgz.1: zgz/zgz.pod
+	pod2man -c zgz zgz/zgz.pod           > zgz.1
+
+extra_build: zgz/zgz pristine-tar.spec $(manpages) zgz.1
+	@$(MAKE) --quiet -C pit/suse-bzip2 PREFIX=$(PREFIX)
 
 ZGZ_SOURCES = zgz/zgz.c zgz/gzip/*.c zgz/old-bzip2/*.c
 zgz/zgz: $(ZGZ_SOURCES)
@@ -76,10 +79,10 @@ extra_clean:
 	$(MAKE) clean -C pit/suse-bzip2 PREFIX=$(PREFIX)
 	rm -f *.1
 
+version = $(shell sed -e '1!d; s/.*(\(.*\)).*/\1/' debian/changelog)
+
 pristine-tar.spec: debian/changelog
-	sed "s/Version:.*/Version: $$($(PERLRUN) -e '$$_=<>;print m/\((.*?)\)/'<$<)/" \
-		$@ > $@.new && $(MV) $@.new $@
-PHONY+=pristine-tar.spec
+	sed "s/Version:.*/Version: $(version)/" $@ > $@.new && $(MV) $@.new $@
 
 .PHONY: $(PHONY)
 }
