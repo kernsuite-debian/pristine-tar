@@ -38,20 +38,8 @@ import_tarball() {
   git branch upstream
 }
 
-assertWorksWithTarball() {
-  local orig_tarball="$1"
-  local tarball=$(basename "$orig_tarball")
-  local dir=$(echo "$tarball" | cut -d - -f 1)
-
-  git_init "$dir"
-
-  import_tarball "$orig_tarball"
-
-  pristine-tar commit "$orig_tarball"
-  orig_sha1=$(get_sha1 "$orig_tarball")
-
-  pristine-tar checkout "$tarball"
-  sha1=$(get_sha1 "$tarball")
-
-  assertEquals "$orig_sha1" "$sha1"
+assertHashEquals() {
+  sha1_1=$(get_sha1 "$1")
+  sha1_2=$(get_sha1 "$2")
+  assertEquals "$sha1_1" "$sha1_2"
 }
