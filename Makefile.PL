@@ -65,7 +65,7 @@ extra_build: zgz/zgz pristine-tar.spec $(manpages) zgz.1
 
 ZGZ_SOURCES = zgz/zgz.c zgz/gzip/*.c zgz/old-bzip2/*.c
 zgz/zgz: $(ZGZ_SOURCES)
-	gcc -Wall -O2 -o $@ $(ZGZ_SOURCES) -lz -DPKGLIBDIR=\"$(PKGLIBDIR)\"
+	$(CC) -Wall -O2 -o $@ $(ZGZ_SOURCES) -lz -DPKGLIBDIR=\"$(PKGLIBDIR)\" $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
 
 extra_install:
 	install -d $(DESTDIR)$(PREFIX)/bin

@@ -56,11 +56,13 @@ soext_minor=$(soext).$(sominor)
 LDDLFLAGS=-shared -Wl,-soname,libbz2.$(soext_major)
 endif
 
+LDDLFLAGS += $(patsubst -fPIE -pie,,$(LDFLAGS))
+
 bzip2: libbz2.$(soext) bzip2.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bzip2 bzip2.o -L. -lbz2
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o bzip2 bzip2.o -L. -lbz2
 
 bzip2recover: bzip2recover.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bzip2recover bzip2recover.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o bzip2recover bzip2recover.o
 
 libbz2.a: $(OBJS)
 	rm -f libbz2.a
@@ -81,10 +83,10 @@ libbz2.$(soext_minor): $(OBJS:%.o=%.sho)
 	$(CC)  $(LDDLFLAGS) -o $@ $^ -lc
 
 %.sho: %.c
-	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -o $@ -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -D_REENTRANT -fPIC -o $@ -c $<
 
 %.o: %.c
-	$(CC) $(CFLAGS) -D_REENTRANT -o $@ -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -D_REENTRANT -o $@ -c $<
 
 check: test
 
