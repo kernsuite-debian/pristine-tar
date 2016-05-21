@@ -10,7 +10,6 @@ Homepage: http://kitenet.net/~joey/code/pristine-tar/
 
 Package: pristine-tar
 Architecture: any
-Section: utils
 Depends: xdelta, ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, tar (>= 1.27-3)
 Recommends: pbzip2, bzip2, xz-utils
 Description: regenerate pristine tarballs
