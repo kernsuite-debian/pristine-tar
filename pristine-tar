@@ -482,7 +482,7 @@ sub gendelta {
 	# Check to see if it's compressed, and get uncompressed tarball.
 	my $compression=undef;
 	if (is_gz($tarball)) {
-	    	$compression='gz';
+		$compression='gz';
 		open(IN, "-|", "zcat", $tarball) || die "zcat: $!";
 		open(OUT, ">", "$tempdir/origtarball") || die "$tempdir/origtarball: $!";
 		print OUT $_ while <IN>;
@@ -564,8 +564,7 @@ sub gendelta {
 }
 
 sub vcstype {
-	if (-e ".git" ||
-	    (exists $ENV{GIT_DIR} && length $ENV{GIT_DIR})) {
+	if (-e ".git" || (exists $ENV{GIT_DIR} && length $ENV{GIT_DIR})) {
 		return 'git';
 	}
 	else {
