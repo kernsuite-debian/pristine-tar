@@ -21,7 +21,7 @@ B<pristine-tar> [-vdk] list
 pristine-tar can regenerate an exact copy of a pristine upstream tarball
 using only a small binary I<delta> file and the contents of the tarball,
 which are typically kept in an I<upstream> branch in version control.
- 
+
 The I<delta> file is designed to be checked into version control along-side
 the I<upstream> branch, thus allowing Debian packages to be built entirely
 using sources in version control, without the need to keep copies of
@@ -119,7 +119,7 @@ just created a tarball of the release, I<hello-1.0.tar.gz>, which you
 will upload to a "forge" site.
 
 You want to ensure that, if the "forge" loses the tarball, you can always
-recreate exactly that same tarball. And you'd prefer not to keep copies 
+recreate exactly that same tarball. And you'd prefer not to keep copies
 of tarballs for every release, as that could use a lot of disk space
 when hello gets the background mp3s and user-contributed levels you
 are planning for version 2.0.
@@ -246,7 +246,7 @@ sub recreatetarball {
 	my $manifestfile=shift;
 	my $source=shift;
 	my %options=@_;
-	
+
 	my $tempdir=tempdir();
 
 	my @manifest;
@@ -281,7 +281,7 @@ sub recreatetarball {
 			last;
 		}
 	}
-		
+
 	if (length $subdir) {
 		debug("subdir is $subdir");
 		doit("mkdir", "$tempdir/workdir");
@@ -320,7 +320,7 @@ sub recreatetarball {
 				mkpath "$tempdir/workdir/$unquoted_file";
 			}
 		}
-		
+
 		if (-d "$tempdir/workdir/$unquoted_file" && (-u _ || -g _ || -k _)) {
 			# tar behaves weirdly for some special modes
 			# and ignores --mode, so clear them.
@@ -338,7 +338,7 @@ sub recreatetarball {
 			utime(0, 0, "$tempdir/workdir/$unquoted_file") || die "utime: $file: $!";
 		}
 	}
-	
+
 	# If some files couldn't be matched up with the manifest,
 	# it's possible they do exist, but just with names that make sense
 	# to tar, but not to this program. Work around this and make sure
@@ -370,7 +370,7 @@ sub recreatetarball {
 sub recreatetarball_helper {
 	my %options=@_;
 	my $tempdir=$recreatetarball_tempdir;
-	
+
 	my $ret="$tempdir/recreatetarball";
 	my @cmd=($tar_program, "cf", $ret, "--owner", 0, "--group", 0,
 			"--numeric-owner", "-C", "$tempdir/workdir",
@@ -381,7 +381,7 @@ sub recreatetarball_helper {
 	}
 
 	doit(@cmd);
-	
+
 	return $ret;
 }
 
@@ -395,7 +395,7 @@ sub recreatetarball_longlink_100 {
 	# This variable is currently only available in Debian's tar,
 	# so users of non-debian tar who want to recreate tarballs from
 	# deltas created using the old version of Debian's tar are SOL.
-	
+
 	$ENV{TAR_LONGLINK_100}=1;
 	my $ret=recreatetarball_helper();
 	delete $ENV{TAR_LONGLINK_100};
@@ -410,7 +410,7 @@ sub gentar {
 	my $delta=Pristine::Tar::Delta::read(Tarball => $deltafile);
 	Pristine::Tar::Delta::assert($delta, type => "tar", maxversion => 2,
 		minversion => 2, fields => [qw{manifest delta}]);
-	
+
 	my $out=(defined $delta->{wrapper}
 		? tempdir()."/".basename($tarball).".tmp"
 		: $tarball);
@@ -440,7 +440,7 @@ sub gentar {
 	if (defined $delta->{wrapper}) {
 		my $delta_wrapper=Pristine::Tar::Delta::read(Tarball => $delta->{wrapper});
 		if (grep { $_ eq $delta_wrapper->{type} } qw{gz bz2 xz}) {
-			doit("pristine-".$delta_wrapper->{type}, 
+			doit("pristine-".$delta_wrapper->{type},
 				($verbose ? "-v" : "--no-verbose"),
 				($debug ? "-d" : "--no-debug"),
 				($keep ? "-k" : "--no-keep"),
@@ -454,7 +454,7 @@ sub gentar {
 		}
 	}
 }
-	
+
 sub genmanifest {
 	my $tarball=shift;
 	my $manifest=shift;
@@ -506,7 +506,7 @@ sub gendelta {
 		close OUT || die "$tempdir/origtarball: $!";
 	}
 	close IN;
-	
+
 	# Generate a wrapper file to recreate the compressed file.
 	if (defined $compression) {
 		$delta{wrapper}="$tempdir/wrapper";
@@ -577,7 +577,7 @@ sub export {
 
 	my $dest=tempdir();
 	my $id;
-	
+
 	my $vcs=vcstype();
 	if ($vcs eq "git") {
 		if (defined $upstream && $upstream =~ /[A-Za-z0-9]{40}/) {
@@ -724,13 +724,13 @@ sub commitdelta {
 		open(OUT, ">$tempdir/$idfile") || die "$tempdir/$idfile: $!";
 		print OUT "$id\n";
 		close OUT;
-			
+
 		# Commit the delta to a branch in git without affecting the
-		# index, and without touching the working tree. Aka deep 
+		# index, and without touching the working tree. Aka deep
 		# git magick.
 		$ENV{GIT_INDEX_FILE}="$tempdir/index";
 		$ENV{GIT_WORK_TREE}="$tempdir";
-		if (! exists $ENV{GIT_DIR} || ! length $ENV{GIT_DIR}) {		
+		if (! exists $ENV{GIT_DIR} || ! length $ENV{GIT_DIR}) {
 			$ENV{GIT_DIR}=getcwd."/.git";
 		}
 		else {
@@ -779,7 +779,7 @@ sub commitdelta {
 			print COMMIT $commit_message."\n";
 			close COMMIT || error("git commit-tree failed");
 		}
-		
+
 		message("committed $deltafile to branch $branch");
 	}
 	else {
@@ -790,7 +790,7 @@ sub commitdelta {
 sub commit {
 	my $tarball=shift;
 	my $upstream=shift; # optional
-	
+
 	if (! defined $tarball || @_) {
 		usage();
 	}
@@ -814,7 +814,7 @@ sub commit {
 
 sub checkout {
 	my $tarball=shift;
-	
+
 	my ($delta, $id)=checkoutdelta($tarball);
 	my ($sourcedir, undef)=export($id);
 	my $pid = open(GENTAR, "|-");
