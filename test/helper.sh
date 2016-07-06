@@ -12,13 +12,13 @@ fi
 if [ -z "$ADTTMP" ]; then
   export PATH="$SRCDIR/blib/script":"$SRCDIR/zgz":"$PATH"
   export PERL5LIB="$SRCDIR/blib/lib"
-  {
+  (
     set -e
     if [ ! -f Makefile ]; then
       perl Makefile.PL
     fi
     make
-  }
+  )
 fi
 
 
