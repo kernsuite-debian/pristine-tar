@@ -174,6 +174,8 @@ Licensed under the GPL, version 2 or above.
 
 use warnings;
 use strict;
+use Digest::SHA;
+use File::Temp;
 use Pristine::Tar;
 use Pristine::Tar::Delta;
 use Pristine::Tar::Formats;
@@ -211,6 +213,7 @@ dispatch(
 		checkout => [\&checkout, 1],
 		co => [\&checkout, 1],
 		list => [\&list, 0],
+		verify => [\&verify, 1],
 	},
 	options => {
 		"m|message=s" => \$message,
@@ -507,6 +510,9 @@ sub gendelta {
 	}
 	close IN;
 
+	# store a hash of the original tarball
+	$delta{sha256sum}=get_sha256sum($tarball);
+
 	# Generate a wrapper file to recreate the compressed file.
 	if (defined $compression) {
 		$delta{wrapper}="$tempdir/wrapper";
@@ -561,6 +567,13 @@ sub gendelta {
 		type => 'tar',
 		%delta,
 	});
+}
+
+sub get_sha256sum {
+	my $tarball=shift;
+	my $sha256sum = Digest::SHA->new(256);
+	$sha256sum->addfile($tarball);
+	return $sha256sum->hexdigest;
 }
 
 sub vcstype {
@@ -847,5 +860,37 @@ sub list {
 	}
 	else {
 		die "unsupported vcs $vcs";
+	}
+}
+
+sub verify {
+	my $tarball=shift;
+
+	my ($deltadata, $id)=checkoutdelta($tarball);
+
+	my $deltafile = File::Temp->new();
+	print $deltafile $deltadata;
+
+	my $delta=Pristine::Tar::Delta::read(Tarball => $deltafile->filename);
+
+	exit(verify_delta($delta, $tarball));
+}
+
+sub verify_delta {
+	my $delta=shift;
+	my $tarball=shift;
+
+	if (defined $delta->{sha256sum}) {
+		my $tarball_hash = get_sha256sum($tarball);
+		my $stored_hash = $delta->{sha256sum};
+		if ($tarball_hash eq $stored_hash) {
+			return 0;
+		} else {
+			message("${tarball} does not match stored hash (expected ${stored_hash}, got ${tarball_hash})");
+			return 1;
+		}
+	} else {
+		message("Delta file does not contain hash information");
+		return 2;
 	}
 }
