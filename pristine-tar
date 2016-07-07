@@ -880,17 +880,23 @@ sub verify_delta {
 	my $delta=shift;
 	my $tarball=shift;
 
+	my $tarball_hash = get_sha256sum($tarball);
+	my $stored_hash;
+
 	if (defined $delta->{sha256sum}) {
-		my $tarball_hash = get_sha256sum($tarball);
-		my $stored_hash = $delta->{sha256sum};
-		if ($tarball_hash eq $stored_hash) {
-			return 0;
-		} else {
-			message("${tarball} does not match stored hash (expected ${stored_hash}, got ${tarball_hash})");
-			return 1;
-		}
+		$stored_hash = $delta->{sha256sum};
 	} else {
-		message("Delta file does not contain hash information");
-		return 2;
+		my $tmpdir = File::Temp->newdir();
+		my $tmpdirpath = $tmpdir->{DIRNAME};
+		my $orig_tarball = $tmpdirpath . '/' . basename($tarball);
+		checkout($orig_tarball);
+		$stored_hash = get_sha256sum($orig_tarball);
+	}
+
+	if ($tarball_hash eq $stored_hash) {
+		return 0;
+	} else {
+		message("${tarball} does not match stored hash (expected ${stored_hash}, got ${tarball_hash})");
+		return 1;
 	}
 }
