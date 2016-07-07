@@ -827,6 +827,7 @@ sub commit {
 
 sub checkout {
 	my $tarball=shift;
+	my %opts=@_;
 
 	my ($delta, $id)=checkoutdelta($tarball);
 	my ($sourcedir, undef)=export($id);
@@ -840,8 +841,7 @@ sub checkout {
 	}
 	print GENTAR $delta;
 	close GENTAR || error "failed to generate tarball";
-
-	message("successfully generated $tarball");
+	message("successfully generated $tarball") unless $opts{quiet};
 }
 
 sub list {
@@ -889,7 +889,7 @@ sub verify_delta {
 		my $tmpdir = File::Temp->newdir();
 		my $tmpdirpath = $tmpdir->{DIRNAME};
 		my $orig_tarball = $tmpdirpath . '/' . basename($tarball);
-		checkout($orig_tarball);
+		checkout($orig_tarball, quiet => 1);
 		$stored_hash = get_sha256sum($orig_tarball);
 	}
 
