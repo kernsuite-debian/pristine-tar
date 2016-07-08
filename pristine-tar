@@ -70,6 +70,9 @@ The delta files are stored in a branch named "pristine-tar", with filenames
 corresponding to the input tarball, with ".delta" appended. This
 branch is created or updated as needed to add each new delta.
 
+If I<tarball> already exists previously, it will only be overwritten if it does
+not match a hash of the tarball that has been committed to version control.
+
 =item pristine-tar checkout I<tarball>
 
 This regenerates a copy of the specified I<tarball> using information
@@ -416,6 +419,12 @@ sub gentar {
 	my %opts=@_;
 
 	my $delta=Pristine::Tar::Delta::read(Tarball => $deltafile);
+
+	if (-e $tarball && verify_delta($delta, $tarball, fast => 1) == 0) {
+		message("$tarball already exists and is valid");
+		return;
+	}
+
 	Pristine::Tar::Delta::assert($delta, type => "tar", maxversion => 2,
 		minversion => 2, fields => [qw{manifest delta}]);
 
@@ -884,12 +893,15 @@ sub verify {
 sub verify_delta {
 	my $delta=shift;
 	my $tarball=shift;
+	my %opts=@_;
 
 	my $tarball_hash = get_sha256sum($tarball);
 	my $stored_hash;
 
 	if (defined $delta->{sha256sum}) {
 		$stored_hash = $delta->{sha256sum};
+	} elsif ($opts{fast}) {
+		return 1;
 	} else {
 		my $tmpdir = File::Temp->newdir();
 		my $tmpdirpath = $tmpdir->{DIRNAME};
