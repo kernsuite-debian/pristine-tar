@@ -12,13 +12,13 @@ fi
 if [ -z "$ADTTMP" ]; then
   export PATH="$SRCDIR/blib/script":"$SRCDIR/zgz":"$PATH"
   export PERL5LIB="$SRCDIR/blib/lib"
-  {
+  (
     set -e
     if [ ! -f Makefile ]; then
       perl Makefile.PL
     fi
     make
-  }
+  )
 fi
 
 
@@ -58,4 +58,18 @@ assertHashEquals() {
   sha1_1=$(get_sha1 "$1")
   sha1_2=$(get_sha1 "$2")
   assertEquals "$sha1_1" "$sha1_2"
+}
+
+assertSuccess() {
+  echo "$@"
+  "$@"
+  rc=$?
+  assertEquals 0 "$rc"
+}
+
+assertFailure() {
+  echo "$@"
+  "$@"
+  rc=$?
+  assertNotEquals 0 "$rc"
 }

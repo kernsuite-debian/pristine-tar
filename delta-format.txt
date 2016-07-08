@@ -5,6 +5,11 @@ version
 type
 	Type of file this is a delta for ("tar", "gz", or "bz2").
 
+sha256sum
+	hex-encoded sha256sum hash of the original tarball used to verify the
+	integrity of existing tarballs. Optional; if not present, the stored
+	tarball will be checked out, hashed, and that hash will be used
+	instead.
 
 For tar files, it contains:
 
