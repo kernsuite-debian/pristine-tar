@@ -80,6 +80,11 @@ previously saved in version control by B<pristine-tar commit>.
 This lists tarballs that pristine-tar is able to checkout from version
 control.
 
+=item pristine-tar verify I<tarball>
+
+Verifies whether an existing I<tarball> matches the one that has been committed
+to version control.
+
 =back
 
 =head1 OPTIONS
