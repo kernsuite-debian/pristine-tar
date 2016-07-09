@@ -1,3 +1,9 @@
+pristine-tar (1.35~1) UNRELEASED; urgency=medium
+
+  * Add `pristine-tar verify` to the usage message
+
+ -- Antonio Terceiro <terceiro@debian.org>  Sat, 09 Jul 2016 18:34:18 -0300
+
 pristine-tar (1.35~0) experimental; urgency=medium
 
   * pristine-tar now stores a tarball hash in the delta file (Closes: #608406)
