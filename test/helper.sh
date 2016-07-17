@@ -17,7 +17,7 @@ if [ -z "$ADTTMP" ]; then
     if [ ! -f Makefile ]; then
       perl Makefile.PL
     fi
-    make
+    make -s
   )
 fi
 
