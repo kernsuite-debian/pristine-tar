@@ -38,11 +38,13 @@ get_sha1() {
 
 git_init() {
   local repo="$1"
+  cd "$TMPDIR"
   mkdir "$repo"
   cd "$repo"
   git init
   git config user.name 'Test User'
   git config user.email 'test@example.com'
+  REPODIR="$TMPDIR/$repo"
 }
 
 import_tarball() {
@@ -61,14 +63,14 @@ assertHashEquals() {
 }
 
 assertSuccess() {
-  echo "$@"
+  echo "assertSuccess($@)"
   "$@"
   rc=$?
   assertEquals 0 "$rc"
 }
 
 assertFailure() {
-  echo "$@"
+  echo "assertFailure($@)"
   "$@"
   rc=$?
   assertNotEquals 0 "$rc"

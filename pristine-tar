@@ -663,7 +663,11 @@ sub git_findbranch {
 	# one exists, returns that. If there's no such branch at all, returns
 	# undef. Finally, if there are multiple remote branches and no
 	# local branch, fails with an error.
-	my $branch=shift;
+	# If remove_dups is true, then remote branches pointing to the same
+	# hash are squashed. This allows to list/checkout in this special case.
+
+	my $branch = shift;
+	my $remove_dups = shift;
 
 	my @reflines=split(/\n/, `git show-ref \Q$branch\E`);
 	my @remotes=grep { ! m/ refs\/heads\/\Q$branch\E$/ } @reflines;
@@ -671,6 +675,18 @@ sub git_findbranch {
 		return $branch;
 	}
 	else {
+		if ($remove_dups) {
+			# squash remotes with the same git hash (first field)
+			my (%ids, @new_remotes);
+			foreach my $line (@remotes) {
+				$line =~ /^(\w+)/;
+				if (!$ids{$1}) {
+					push @new_remotes, $line;
+					$ids{$1} = 1;
+				}
+			}
+			@remotes = @new_remotes;
+		}
 		if (@reflines == 0) {
 			return undef;
 		}
@@ -697,7 +713,7 @@ sub checkoutdelta {
 
 	my $vcs=vcstype();
 	if ($vcs eq "git") {
-		my $b=git_findbranch($branch);
+		my $b=git_findbranch($branch, 1);
 		if (! defined $b) {
 			error "no $branch branch found, use \"pristine-tar commit\" first";
 		}
@@ -769,7 +785,7 @@ sub commitdelta {
 		# If there's no local branch, branch from a remote branch
 		# if one exists. If there's no remote branch either, the
 		# code below will create the local branch.
-		my $b=git_findbranch($branch);
+		my $b=git_findbranch($branch, 0);
 		if (defined $b && $b ne $branch) {
 			doit("git branch --track \Q$branch\E \Q$b\E");
 		}
@@ -863,7 +879,7 @@ sub list {
 	my $branch="pristine-tar";
 	my $vcs=vcstype();
 	if ($vcs eq "git") {
-		my $b=git_findbranch($branch);
+		my $b=git_findbranch($branch, 1);
 		if (defined $b) {
 			open (LIST, "git ls-tree $b --name-only |");
 			while (<LIST>) {
