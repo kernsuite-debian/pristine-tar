@@ -1,9 +1,15 @@
 pristine-tar (1.35~1) UNRELEASED; urgency=medium
 
+  [ Antonio Terceiro ]
   * Add `pristine-tar verify` to the usage message
   * pristine-tar.spec: RPM packaging improvements to make pristine-tar easily
     buildable in openSUSE, Fedora and CentOS. Patch by Markus Lehtonen
     (Closes: #807597)
+
+  [ Tomasz Buchert ]
+  * pristine-tar is now able to reproduce xz files compressed with
+    multithreading; however, this requires xz >= 5.2.0 (Closes: #829248)
+  * Minor bugfixes (Closes: #798641)
 
  -- Antonio Terceiro <terceiro@debian.org>  Sat, 09 Jul 2016 18:34:18 -0300
 
