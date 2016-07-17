@@ -169,6 +169,7 @@ sub predict_xz_args {
 	my ($xz) = @_;
 	my $presets = undef;
 	my $block_list = undef;
+	my $block_sum = 0;
 	my $blocks = $xz->{blocks};
 	if (scalar(@$blocks)) {
 		# There is at least one block. We assume the same compression
@@ -199,8 +200,8 @@ sub predict_xz_args {
 		}
 		if (scalar(@$blocks) > 1) {
 			# Gather the block uncompressed sizes
-			$block_list = join(',', map {$_->{uncompressed_size}}
-					    @$blocks);
+			$block_list = join(',', map {$_->{uncompressed_size}} @$blocks);
+			map { $block_sum += $_->{uncompressed_size} } @$blocks;
 		}
 	}
 	my %check_kwd_of = 
@@ -219,6 +220,10 @@ sub predict_xz_args {
 		unshift @$common, "--block-list=$block_list";
 	}
 	foreach my $preset (@$presets) {
+		if ($block_sum == $xz->{file}->{uncompressed}) {
+			# *very* likely multithreaded compression
+			push @$possible_args, [@$common, "-T2"];
+		}
 		push @$possible_args, [@$common, "-$preset"];
 		push @$possible_args, [@$common, "-${preset}e"];
 	}
@@ -352,6 +357,7 @@ sub genxz {
 		next if $param eq '--check=crc64';
 		next if $param eq '--check=sha256';
 		next if $param=~/^(--block-list=[0-9,]+)$/;
+		next if $param eq '-T2';
 		die "paranoia check failed on params from delta ($param)";
 	}
 	@params=split(' ', $delta->{params});
