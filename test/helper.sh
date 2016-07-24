@@ -63,14 +63,14 @@ assertHashEquals() {
 }
 
 assertSuccess() {
-  echo "assertSuccess($@)"
+  (>&2 echo "I: assertSuccess($@)")
   "$@"
   rc=$?
   assertEquals 0 "$rc"
 }
 
 assertFailure() {
-  echo "assertFailure($@)"
+  (>&2 echo "I: assertFailure($@)")
   "$@"
   rc=$?
   assertNotEquals 0 "$rc"
