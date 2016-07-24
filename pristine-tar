@@ -187,6 +187,7 @@ use File::Temp;
 use Pristine::Tar;
 use Pristine::Tar::Delta;
 use Pristine::Tar::Formats;
+use Pristine::Tar::DeltaTools;
 use File::Path;
 use File::Basename;
 use Cwd qw{getcwd abs_path};
@@ -204,12 +205,19 @@ delete $ENV{TAPE};
 $ENV{PRISTINE_TAR_COMPAT}=1;
 
 # The following two assignments are potentially munged during the
-# build process to hold the values of TAR_PROGRAM and XDELTA_PROGRAM
-# parameters as given to Makefile.PL.
+# build process to hold the values of TAR_PROGRAM parameters as given
+# to Makefile.PL.
+
 my $tar_program = "tar";
-my $xdelta_program = "xdelta";
+
+use constant {
+	XDELTA => "2",
+	XDELTA3 => "3",
+};
 
 my $message;
+my $genversion =
+	version_from_env(XDELTA, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
 
 dispatch(
 	commands => {
@@ -426,8 +434,8 @@ sub gentar {
 		return;
 	}
 
-	Pristine::Tar::Delta::assert($delta, type => "tar", maxversion => 2,
-		minversion => 2, fields => [qw{manifest delta}]);
+	Pristine::Tar::Delta::assert($delta, type => "tar", maxversion => XDELTA3,
+		minversion => XDELTA, fields => [qw{manifest delta}]);
 
 	my $out=(defined $delta->{wrapper}
 		? tempdir()."/".basename($tarball).".tmp"
@@ -443,11 +451,19 @@ sub gentar {
 			clobber_source => 0, tar_format => "posix", %opts) };
 
 	my $ok;
+	my $version = $delta->{version};
 	foreach my $variant (@try) {
 		my $recreatetarball=$variant->();
-		my $ret=try_doit($xdelta_program, "patch", $delta->{delta}, $recreatetarball, $out);
+		my $ret;
+		if ($version eq XDELTA) {
+			$ret = try_xdelta_patch($recreatetarball, $delta->{delta}, $out);
+		} elsif ($version eq XDELTA3) {
+			$ret = try_xdelta3_patch($recreatetarball, $delta->{delta}, $out);
+		} else {
+			die "Unknown version: $version!";
+		}
 		if ($ret == 0) {
-			$ok=1;
+			$ok = 1;
 			last;
 		}
 	}
@@ -467,8 +483,7 @@ sub gentar {
 			doit("mv", "-f", $out.".".$delta_wrapper->{type}, $tarball);
 		}
 		else {
-			error "unknown wrapper file type: ".
-				$delta_wrapper->{type};
+			error "unknown wrapper file type: ".$delta_wrapper->{type};
 		}
 	}
 }
@@ -560,10 +575,16 @@ sub gendelta {
 	}
 
 	$delta{delta}="$tempdir/delta";
-	my $ret=system("$xdelta_program delta -0 --pristine $recreatetarball $tarball $delta{delta}") >> 8;
-	# xdelta exits 1 on success if there were differences
-	if ($ret != 1 && $ret != 0) {
-		error "xdelta failed with return code $ret";
+	my $ret;
+	if ($genversion eq XDELTA) {
+		$ret = try_xdelta_diff($recreatetarball, $tarball, $delta{delta});
+	} elsif ($genversion eq XDELTA3) {
+		$ret = try_xdelta3_diff($recreatetarball, $tarball, $delta{delta});
+	} else {
+		die "Unknown delta version $genversion. Internal error.";
+	}
+	if ($ret != 0) {
+		error "delta program failed with return code $ret";
 	}
 
 	if (-s $delta{delta} >= -s $tarball) {
@@ -578,7 +599,7 @@ sub gendelta {
 	}
 
 	Pristine::Tar::Delta::write(Tarball => $deltafile, {
-		version => 2,
+		version => $genversion,
 		type => 'tar',
 		%delta,
 	});
