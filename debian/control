@@ -1,7 +1,13 @@
 Source: pristine-tar
 Section: utils
 Priority: optional
-Build-Depends: debhelper (>= 9), dpkg-dev (>= 1.9.0), zlib1g-dev, perl, shunit2, git, xdelta
+Build-Depends: debhelper (>= 9),
+               dpkg-dev (>= 1.9.0),
+               git,
+               perl,
+               shunit2,
+               xdelta,
+               zlib1g-dev
 Maintainer: Antonio Terceiro <terceiro@debian.org>
 Standards-Version: 3.9.8
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/pristine-tar.git
@@ -10,8 +16,13 @@ Homepage: http://kitenet.net/~joey/code/pristine-tar/
 
 Package: pristine-tar
 Architecture: any
-Depends: xdelta, ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, tar (>= 1.27-3)
-Recommends: pbzip2, bzip2, xz-utils
+Depends: tar (>= 1.27-3),
+         xdelta,
+         xdelta3,
+         ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends}
+Recommends: bzip2, pbzip2, xz-utils
 Description: regenerate pristine tarballs
  pristine-tar can regenerate a pristine upstream tarball using only a small
  binary delta file and a revision control checkout of the upstream branch.
