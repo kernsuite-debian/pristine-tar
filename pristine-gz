@@ -92,9 +92,22 @@ use strict;
 use Pristine::Tar;
 use Pristine::Tar::Delta;
 use Pristine::Tar::Formats;
+use Pristine::Tar::DeltaTools;
 use File::Basename qw/basename/;
 
 delete $ENV{GZIP};
+
+use constant {
+	NODELTA => "2.0",
+	XDELTA => "3.0",
+	XDELTA3 => "4",
+};
+
+my $genversion =
+	version_from_env(XDELTA, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
+
+# consider deltas < 10KB as small enough to be used immediately
+my $good_enough_delta = 10 * 1024;
 
 dispatch(
 	commands => {
@@ -111,7 +124,7 @@ sub usage {
 
 sub readgzip {
 	my $filename = shift;
-	
+
 	if (! is_gz($filename)) {
 		error "This is not a valid GZip archive.";
 	}
@@ -128,7 +141,7 @@ sub readgzip {
 		= (unpack("CCCb8VCC", $chars), '');
 
 	my @flags = split(//, $flags);
-	
+
 	if ($flags[$fconstants{GZIP_FLAG_FNAME}]) {
 		# read a null-terminated string
 		$name .= $chars
@@ -227,21 +240,30 @@ sub reproducegz {
 
 	foreach my $variant (@try) {
 		doit_redir($tempin, $tempout, 'zgz', @$variant, @extraargs, '-c');
-		if (!comparefiles($orig, $tempout)) {
-			# success
-			return $name, $timestamp, undef, @$variant;
+		if ($genversion == XDELTA && !comparefiles($orig, $tempout)) {
+			# TODO: Remove when xdelta is phased out.
+			# only generate NODELTA files when XDELTA would be used otherwise
+			return $name, $timestamp, undef, NODELTA, @$variant;
 		}
 		else {
-			# generate a binary delta and see if this is the
-			# best variant so far
-			my $ret=system("xdelta delta -0 --pristine $tempout $orig $tempdir/tmpdelta 2>/dev/null") >> 8;
-			# xdelta exits 1 on success
-			if ($ret == 1) {
-				my $size=(stat("$tempdir/tmpdelta"))[7];
+			# generate a binary delta and see if this is the best variant so far
+			my $ret;
+			if ($genversion == XDELTA3) {
+				$ret = try_xdelta3_diff($tempout, $orig, "$tempdir/tmpdelta");
+			} elsif ($genversion == XDELTA) {
+				$ret = try_xdelta_diff($tempout, $orig, "$tempdir/tmpdelta");
+			} else {
+				die "Unknown delta version $genversion. Internal error.";
+			}
+			if ($ret == 0) {
+				my $size = (stat("$tempdir/tmpdelta"))[7];
 				if (! defined $bestsize || $size < $bestsize) {
 					$bestvariant = $variant;
 					$bestsize=$size;
 					rename("$tempdir/tmpdelta", "$tempdir/bestdelta") || die "rename: $!";
+				}
+				if ($size <= $good_enough_delta) {
+					last;
 				}
 			}
 		}
@@ -251,17 +273,17 @@ sub reproducegz {
 	# the best variant
 	my $percentover=100 - int (($origsize-$bestsize)/$origsize*100);
 	debug("Using delta to best variant, bloating $percentover%: @$bestvariant");
-	if ($percentover > 10) {
+	if ($percentover > 10 && $bestsize > $good_enough_delta) {
 		print STDERR "warning: pristine-gz cannot reproduce build of $orig; ";
 		if ($percentover >= 100) {
 			print STDERR "storing entire file in delta!\n";
 		}
 		else {
-			print STDERR "storing $percentover% size diff in delta\n";
+			print STDERR "storing $percentover% size diff in delta ($bestsize bytes)\n";
 		}
 		print STDERR "(Please consider filing a bug report so the delta size can be improved.)\n";
 	}
-	return $name, $timestamp, "$tempdir/bestdelta", @$bestvariant;
+	return $name, $timestamp, "$tempdir/bestdelta", $genversion, @$bestvariant;
 }
 
 sub gengz {
@@ -269,7 +291,7 @@ sub gengz {
 	my $file=shift;
 
 	my $delta=Pristine::Tar::Delta::read(Tarball => $deltafile);
-	Pristine::Tar::Delta::assert($delta, type => "gz", maxversion => 3,
+	Pristine::Tar::Delta::assert($delta, type => "gz", maxversion => XDELTA3,
 		fields => [qw{params filename timestamp}]);
 
 	my @params=split(' ', $delta->{params});
@@ -293,14 +315,21 @@ sub gengz {
 	}
 	push @zgz, "-c";
 
-	if (exists $delta->{delta}) {
+	my $version = $delta->{version};
+	if (! exists $delta->{delta}) {
+		die "Unknown format: $version!" if !($version eq NODELTA);
+		doit_redir($file, "$file.gz", @zgz);
+	} else {
 		my $tempdir=tempdir();
 		my $tfile="$tempdir/".basename($file).".gz";
 		doit_redir($file, $tfile, @zgz);
-		doit("xdelta", "patch", "--pristine", $delta->{delta}, $tfile, "$file.gz");
-	}
-	else {
-		doit_redir("$file", "$file.gz", @zgz);
+		if ($version eq XDELTA3) {
+			do_xdelta3_patch($tfile, $delta->{delta}, "$file.gz");
+		} elsif ($version eq XDELTA) {
+			do_xdelta_patch($tfile, $delta->{delta}, "$file.gz");
+		} else {
+			die "Unknown format: $version!";
+		}
 	}
 	doit("rm", "-f", $file);
 }
@@ -310,11 +339,11 @@ sub gendelta {
 	my $deltafile=shift;
 
 	my $tempdir=tempdir();
-	my ($filename, $timestamp, $xdelta, @params)=
+	my ($filename, $timestamp, $xdelta, $version, @params)=
 		reproducegz($gzfile, $tempdir, "$tempdir/test");
-	
+
 	Pristine::Tar::Delta::write(Tarball => $deltafile, {
-		version => (defined $xdelta ? "3.0" : "2.0"),
+		version => $version,
 		type => 'gz',
 		params => "@params",
 		filename => basename($filename),
@@ -322,4 +351,3 @@ sub gendelta {
 		(defined $xdelta ? (delta => $xdelta) : ()),
 	});
 }
-

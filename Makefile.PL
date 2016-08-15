@@ -7,12 +7,11 @@ use ExtUtils::MakeMaker;
 my %args = map { split /\s*=\s*/ } @ARGV;
 my $PERL_SHEBANG   = $args{PERL_SHEBANG} || "" ;
 my $TAR_PROGRAM    = $args{TAR_PROGRAM} || "" ;
-my $XDELTA_PROGRAM = $args{XDELTA_PROGRAM} || "" ;
 
-if ($PERL_SHEBANG || $TAR_PROGRAM || $XDELTA_PROGRAM) {
+if ($PERL_SHEBANG || $TAR_PROGRAM) {
   print <<EOF;
-Info: MakeMaker may warn about the custom parameters 'PERL_SHEBANG',
-      'TAR_PROGRAM', and 'XDELTA_PROGRAM', which are anyway correctly
+Info: MakeMaker may warn about the custom parameters 'PERL_SHEBANG'
+      and 'TAR_PROGRAM', which are anyway correctly
       handled for generating the Makefile.
 EOF
 }
@@ -27,8 +26,6 @@ sub macro {
         unless ! ${PERL_SHEBANG};
     $subst .= q[-e "s|tar_program = \".*\";|tar_program = \"$(TAR_PROGRAM)\";|g" ]
         unless ! ${TAR_PROGRAM};
-    $subst .= q[-e "s|xdelta_program = \".*\";|xdelta_program = \"$(XDELTA_PROGRAM)\";|g" ]
-        unless ! ${XDELTA_PROGRAM};
 
     $inherited .= "\nPARAM_SUBST = ${subst}";
     $inherited;
@@ -101,7 +98,6 @@ ExtUtils::MakeMaker::WriteMakefile(
 	macro		=> {
 		PERL_SHEBANG   => "${PERL_SHEBANG}",
 		TAR_PROGRAM    => "${TAR_PROGRAM}",
-		XDELTA_PROGRAM => "${XDELTA_PROGRAM}"
 	},
 	clean		=> { FILES => 'zgz/zgz' },
 );

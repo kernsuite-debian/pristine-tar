@@ -11,7 +11,7 @@ use IPC::Open2;
 use Exporter q{import};
 
 our @EXPORT = qw(error message debug vprint doit try_doit doit_redir
-	tempdir dispatch comparefiles
+	tempdir dispatch comparefiles version_from_env
 	$verbose $debug $keep);
 
 our $verbose=0;
@@ -116,6 +116,19 @@ sub comparefiles {
 	}
 
 	return $? >> 8;
+}
+
+sub version_from_env {
+	my ($version, %xdeltas) = @_;
+	if (exists $ENV{PRISTINE_ALL_XDELTA}) {
+		my $xdelta = $ENV{PRISTINE_ALL_XDELTA};
+		if (exists $xdeltas{$xdelta}) {
+			$version = $xdeltas{$xdelta};
+		} else {
+			die "Unknown delta program: $xdelta";
+		}
+	}
+	return $version;
 }
 
 1

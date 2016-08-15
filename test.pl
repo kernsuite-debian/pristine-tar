@@ -13,13 +13,12 @@ for my $test (@ARGV) {
   printf("%s\n", '-' x length($test));
   printf("\n");
 
-  if (system('sh', $test) != 0) {
+  if (system('bash', $test) != 0) {
     push @failed, $test;
-    $rc++;
   }
 }
 
-if (scalar(@failed) > 0 ) {
+if (scalar(@failed) > 0) {
   print "\n";
   print "FAILED TEST FILES:\n";
   print "------------------\n";
@@ -27,6 +26,8 @@ if (scalar(@failed) > 0 ) {
     print "$failed\n";
   }
   print "\n";
+} else {
+  print "All tests passed!\n";
 }
 
 exit($rc);
