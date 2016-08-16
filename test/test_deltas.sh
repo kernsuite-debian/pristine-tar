@@ -13,6 +13,11 @@ test_tar_2() {
   assertEquals $? 0
 }
 
+test_tar_3() {
+  gentar tar-3
+  assertEquals $? 0
+}
+
 test_bz2_2_0() {
   gentar bz2-2.0
   assertEquals $? 0
@@ -25,6 +30,11 @@ test_gz_2_0() {
 
 test_gz_3_0() {
   gentar gz-3.0
+  assertEquals $? 0
+}
+
+test_gz_4() {
+  gentar gz-4
   assertEquals $? 0
 }
 
