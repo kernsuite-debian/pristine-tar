@@ -10,6 +10,8 @@ pristine-tar (1.35) unstable; urgency=medium
       years, but I have no idea wether I wrote it or if I got it from the
       internet. If you wrote it, please get in touch with me so that I can
       add the proper credits to the source code.
+  * autopkgtest: run all tests with both PRISTINE_ALL_XDELTA=xdelta and
+    PRISTINE_ALL_XDELTA=xdelta3.
 
   [ Tomasz Buchert ]
   * pristine-tar is now able to reproduce xz files compressed with
