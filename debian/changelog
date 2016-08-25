@@ -7,7 +7,7 @@ pristine-tar (1.35) unstable; urgency=medium
     (Closes: #807597)
   * Add bash completion script
     - I had this local bash completing script laying around in my $HOME for
-      years, but I have no idea wether I wrote it or if I got it from the
+      years, but I have no idea whether I wrote it or if I got it from the
       internet. If you wrote it, please get in touch with me so that I can
       add the proper credits to the source code.
   * autopkgtest: run all tests with both PRISTINE_ALL_XDELTA=xdelta and
