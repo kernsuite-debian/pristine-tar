@@ -1,4 +1,4 @@
-pristine-tar (1.35~1) UNRELEASED; urgency=medium
+pristine-tar (1.35) unstable; urgency=medium
 
   [ Antonio Terceiro ]
   * Add `pristine-tar verify` to the usage message
@@ -6,6 +6,10 @@ pristine-tar (1.35~1) UNRELEASED; urgency=medium
     buildable in openSUSE, Fedora and CentOS. Patch by Markus Lehtonen
     (Closes: #807597)
   * Add bash completion script
+    - I had this local bash completing script laying around in my $HOME for
+      years, but I have no idea wether I wrote it or if I got it from the
+      internet. If you wrote it, please get in touch with me so that I can
+      add the proper credits to the source code.
 
   [ Tomasz Buchert ]
   * pristine-tar is now able to reproduce xz files compressed with
@@ -13,7 +17,7 @@ pristine-tar (1.35~1) UNRELEASED; urgency=medium
   * Minor bugfixes (Closes: #798641)
   * Add support for using xdelta3 (Closes: #737499)
 
- -- Antonio Terceiro <terceiro@debian.org>  Sat, 09 Jul 2016 18:34:18 -0300
+ -- Antonio Terceiro <terceiro@debian.org>  Thu, 25 Aug 2016 14:45:27 -0300
 
 pristine-tar (1.35~0) experimental; urgency=medium
 
