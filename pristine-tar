@@ -170,6 +170,14 @@ index; none of that will be touched by "checkout" or "commit".
 
 Specifies a location to place temporary files, other than the default.
 
+=item B<PRISTINE_ALL_XDELTA>
+
+Defines the underlying binary delta tool to be used for new deltas. Supported
+values are "xdelta" (default) and "xdelta3".
+
+Existing deltas will be handled with the original tool that was used to
+create them, regardless of the value of B<$PRISTINE_ALL_XDELTA>.
+
 =back
 
 =head1 AUTHOR
