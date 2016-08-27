@@ -13,6 +13,11 @@ test_tar_2() {
   assertEquals $? 0
 }
 
+test_tar_2_0() {
+  gentar tar-2.0
+  assertEquals $? 0
+}
+
 test_tar_3() {
   gentar tar-3
   assertEquals $? 0
