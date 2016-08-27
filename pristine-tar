@@ -221,6 +221,7 @@ my $tar_program = "tar";
 use constant {
 	XDELTA => "2",
 	XDELTA3 => "3",
+	XDELTA_LONG => "2.0"
 };
 
 my $message;
@@ -463,7 +464,7 @@ sub gentar {
 	foreach my $variant (@try) {
 		my $recreatetarball=$variant->();
 		my $ret;
-		if ($version eq XDELTA) {
+		if ($version eq XDELTA || $version eq XDELTA_LONG) {
 			$ret = try_xdelta_patch($recreatetarball, $delta->{delta}, $out);
 		} elsif ($version eq XDELTA3) {
 			$ret = try_xdelta3_patch($recreatetarball, $delta->{delta}, $out);

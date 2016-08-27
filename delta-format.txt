@@ -16,7 +16,7 @@ It also contains files depending on the "type" value.
 For tar files, it contains:
 
 version
-	Currently either "2" (xdelta based) or "3" (xdelta3 based).
+	Currently either "2" (or "2.0") (xdelta based) or "3" (xdelta3 based).
 manifest
 	List of all files in the tarball, as output by `tar t`.
 	Used to order files correctly when rebuilding it.
