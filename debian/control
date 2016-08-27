@@ -1,4 +1,6 @@
 Source: pristine-tar
+Maintainer: Antonio Terceiro <terceiro@debian.org>
+Uploaders: Tomasz Buchert <tomasz@debian.org>
 Section: utils
 Priority: optional
 Build-Depends: debhelper (>= 9),
@@ -7,11 +9,11 @@ Build-Depends: debhelper (>= 9),
                perl,
                shunit2,
                xdelta,
+               xdelta3,
                zlib1g-dev
-Maintainer: Antonio Terceiro <terceiro@debian.org>
 Standards-Version: 3.9.8
-Vcs-Git: https://anonscm.debian.org/git/collab-maint/pristine-tar.git
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/pristine-tar.git
+Vcs-Git: https://anonscm.debian.org/git/collab-maint/pristine-tar.git
 Homepage: http://kitenet.net/~joey/code/pristine-tar/
 
 Package: pristine-tar
