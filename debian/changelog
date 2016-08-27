@@ -1,3 +1,9 @@
+pristine-tar (1.37) unstable; urgency=medium
+
+  * Fix another regression for 2.0 xdelta version in pristine-tar
+
+ -- Tomasz Buchert <tomasz@debian.org>  Sat, 27 Aug 2016 17:39:00 +0200
+
 pristine-tar (1.36) unstable; urgency=medium
 
   * Fix regression by passing --pristine to xdelta (Closes: #835586)

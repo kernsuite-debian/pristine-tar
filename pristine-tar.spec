@@ -1,5 +1,5 @@
 Name: pristine-tar
-Version: 1.36
+Version: 1.37
 Release: 2%{?dist}
 Summary: Regenerate pristine tarballs
 
