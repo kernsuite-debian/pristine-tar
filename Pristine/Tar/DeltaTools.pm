@@ -21,7 +21,7 @@ our @EXPORT = qw(try_xdelta_patch do_xdelta_patch try_xdelta_diff do_xdelta_diff
 
 sub try_xdelta_patch {
 	my ($fromfile, $diff, $tofile) = @_;
-	return try_doit("xdelta", "patch", $diff, $fromfile, $tofile) >> 8;
+	return try_doit("xdelta", "patch", "--pristine", $diff, $fromfile, $tofile) >> 8;
 }
 
 sub do_xdelta_patch {
