@@ -413,8 +413,8 @@ sub recreatetarball_helper {
     0,                "--numeric-owner",
     "-C",             "$tempdir/workdir",
     "--no-recursion", "--mode",
-    "0644",           "--files-from",
-    "$tempdir/manifest"
+    "0644",           "--verbatim-files-from",
+    "--files-from",   "$tempdir/manifest"
   );
   if (exists $options{tar_format}) {
     push @cmd, ("-H", $options{tar_format});
