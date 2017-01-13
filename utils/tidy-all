@@ -9,7 +9,7 @@ function tidy {
 
 cd "$(dirname $0)/.."
 
-tidy pristine-{gz,bz2,xz}
+tidy pristine-{gz,bz2,xz,tar}
 tidy test.pl
 
 for f in $(find Pristine | egrep 'pm$'); do
