@@ -1,3 +1,12 @@
+pristine-tar (1.38) UNRELEASED; urgency=medium
+
+  * Automatic refactor of the code to make it more modern
+  * d/control: use debhelper 10
+  * Handle files prefixed with '-' in tarballs (Closes: #851286)
+  * Document --verify (Closes: #851955)
+
+ -- Tomasz Buchert <tomasz@debian.org>  Tue, 24 Jan 2017 23:56:42 +0100
+
 pristine-tar (1.37) unstable; urgency=medium
 
   * Fix another regression for 2.0 xdelta version in pristine-tar
