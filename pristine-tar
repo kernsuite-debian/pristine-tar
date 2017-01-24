@@ -16,6 +16,8 @@ B<pristine-tar> [-vdk] checkout I<tarball>
 
 B<pristine-tar> [-vdk] list
 
+B<pristine-tar> [-vdk] verify I<tarball>
+
 =head1 DESCRIPTION
 
 pristine-tar can regenerate an exact copy of a pristine upstream tarball
