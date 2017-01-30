@@ -104,7 +104,7 @@ use constant {
 };
 
 my $genversion =
-  version_from_env(XDELTA, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
+  version_from_env(XDELTA3, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
 
 # consider deltas < 10KB as small enough to be used immediately
 my $good_enough_delta = 10 * 1024;
