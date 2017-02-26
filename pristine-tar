@@ -948,7 +948,7 @@ sub list {
   if ($vcs eq "git") {
     my $b = git_findbranch($branch, 1);
     if (defined $b) {
-      open(LIST, "git ls-tree $b --name-only |");
+      open(LIST, "git ls-tree $b --name-only | sort -Vr |");
       while (<LIST>) {
         chomp;
         next unless s/\.delta$//;
