@@ -4,7 +4,7 @@ pristine-tar (1.39) unstable; urgency=medium
   default (bringing in particular, support for bigger tarballs). The
   switch should be seamless, but newly checked in tarballs will be
   understood only by versions of pristine-tar starting with 1.35 (note
-  that squeeze features version 1.38). The old format will be
+  that stretch features version 1.38). The old format will be
   understood indefinitely, but support for checking in tarballs using
   the old format may be dropped in the future.
 
