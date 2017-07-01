@@ -1,3 +1,11 @@
+pristine-tar (1.39) unstable; urgency=medium
+
+  * Use xdelta3 by default
+  * Show "pristine-tar list" items in natural order (Closes: #841526).
+  * Bump Standards-Version to 4.0.0  (no change needed)
+
+ -- Tomasz Buchert <tomasz@debian.org>  Sat, 01 Jul 2017 14:29:48 +0200
+
 pristine-tar (1.38) unstable; urgency=medium
 
   * Automatic refactor of the code to make it more modern
@@ -217,7 +225,7 @@ pristine-tar (1.18) unstable; urgency=low
 pristine-tar (1.17) unstable; urgency=low
 
   * pristine-tar: Fail when the delta is excessively large, probably
-    due to the tarball being compressed with something that tar x can 
+    due to the tarball being compressed with something that tar x can
     auto-extract, but that pristine-tar does not support.
 
  -- Joey Hess <joeyh@debian.org>  Mon, 09 Jan 2012 11:44:44 -0400
@@ -329,7 +337,7 @@ pristine-tar (1.00) unstable; urgency=low
     while listing it and decides to die at the end.
   * pristine-gz: Avoid passing -F to zgz if --original-name
     is passed. This bug prevented pristine-gz gengz from
-    recreating the gz in some cases. 
+    recreating the gz in some cases.
   * Add aliases ci and co for commit and checkout. Closes: #500388
   * pristine-gz: Fix generation of gz files that have a null filename field.
   * pristine-tar: Fix behavior in the corner case where the tarball
@@ -400,7 +408,7 @@ pristine-tar (0.19) unstable; urgency=low
 pristine-tar (0.18) unstable; urgency=low
 
   * pristine-gz: Avoid uncompressing the original file more than once.
-    Closes: #506490 
+    Closes: #506490
 
  -- Joey Hess <joeyh@debian.org>  Sat, 22 Nov 2008 18:22:40 -0500
 
@@ -541,7 +549,7 @@ pristine-tar (0.3) unstable; urgency=low
     which is the only package to have files in / in its tarball.
   * Some tarballs put files in a subdir, but don't show a "/" after the subdir
     name in a manifest. Stop relying on that. (example: streamtuner)
-  
+
   Current stats: Out of the whole debian archive, pristine-gz fails
   on 132 files, and pristine-tar fails on 0. Success with 98.97% of
   files.
