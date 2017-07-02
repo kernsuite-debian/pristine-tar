@@ -1,6 +1,6 @@
 Source: pristine-tar
-Maintainer: Antonio Terceiro <terceiro@debian.org>
-Uploaders: Tomasz Buchert <tomasz@debian.org>
+Maintainer: Tomasz Buchert <tomasz@debian.org>
+Uploaders: Antonio Terceiro <terceiro@debian.org>
 Section: utils
 Priority: optional
 Build-Depends: debhelper (>= 10),
