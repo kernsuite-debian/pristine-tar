@@ -3,8 +3,9 @@ pristine-tar (1.39) unstable; urgency=medium
   * Use xdelta3 by default
   * Show "pristine-tar list" items in natural order (Closes: #841526).
   * Bump Standards-Version to 4.0.0  (no change needed)
+  * Make myself the main maintainer
 
- -- Tomasz Buchert <tomasz@debian.org>  Sat, 01 Jul 2017 14:29:48 +0200
+ -- Tomasz Buchert <tomasz@debian.org>  Sun, 02 Jul 2017 11:29:19 +0200
 
 pristine-tar (1.38) unstable; urgency=medium
 
