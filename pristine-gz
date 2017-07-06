@@ -188,13 +188,10 @@ sub reproducegz {
 
   my @try;
 
-  if ($os == $fconstants{GZIP_OS_UNIX}) {
-    # for 98% of the cases the simple heuristic above works
-    # and it was produced by gnu gzip.
-    push @try, [ '--gnu', @args ];
-    push @try, [ '--gnu', @args, '--rsyncable' ];
-    push @try, [ '--gnu', @args, '--new-rsyncable' ];
-  }
+  push @try, [ '--gnu', @args ];
+  push @try, [ '--gnu', @args, '--rsyncable' ];
+  push @try, [ '--gnu', @args, '--new-rsyncable' ];
+  push @try, [ '--gnu', @args, '--16-rsyncable' ];
 
   if ($name =~ /\//) {
     push @args, "--original-name", $name;
@@ -301,7 +298,7 @@ sub gengz {
   my @params = split(' ', $delta->{params});
   while (@params) {
     $_ = shift @params;
-    next if /^(--gnu|--rsyncable|--new-rsyncable|-[nmM1-9])$/;
+    next if /^(--gnu|--rsyncable|--new-rsyncable|--16-rsyncable|-[nmM1-9])$/;
     if (/^(--original-name|--quirk|--osflag)$/) {
       shift @params;
       next;
