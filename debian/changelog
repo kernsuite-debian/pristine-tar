@@ -1,3 +1,13 @@
+pristine-tar (1.40) unstable; urgency=medium
+
+  [ Tomasz Buchert ]
+  * pristine-tar: better file input checks (Closes: #867545)
+
+  [ Len Sorensen ]
+  * Try --gnu all the time and fix current rsyncable (Closes: #805488)
+
+ -- Tomasz Buchert <tomasz@debian.org>  Wed, 12 Jul 2017 22:26:01 +0200
+
 pristine-tar (1.39) unstable; urgency=medium
 
   * Use xdelta3 by default
