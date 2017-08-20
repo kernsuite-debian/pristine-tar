@@ -262,9 +262,10 @@ sub reproducegz {
           $bestsize    = $size;
           rename("$tempdir/tmpdelta", "$tempdir/bestdelta") || die "rename: $!";
         }
-        if ($size <= $good_enough_delta) {
-          last;
-        }
+        # TODO: investigate #871938: zgz fails to reproduce its output.
+        # if ($size <= $good_enough_delta) {
+        #  last;
+        # }
       }
     }
   }
