@@ -994,7 +994,7 @@ sub check_directory_exists {
 
 sub check_file_exists {
   my $filename = shift;
-  if (!$filename eq "-" and !-f $filename) {
+  if ($filename ne "-" and !-f $filename) {
      error "The file $filename does not exist.";
   }
 }
