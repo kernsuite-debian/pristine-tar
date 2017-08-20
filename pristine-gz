@@ -186,6 +186,9 @@ sub reproducegz {
   my @args = predictgzipargs($flags, $timestamp, $level);
   my @extraargs = ("-F", $name, "-T", $timestamp);
 
+  debug("args = " . join(" ", @args));
+  debug("extraargs = " . join(" ", @extraargs));
+
   my @try;
 
   push @try, [ '--gnu', @args ];
@@ -236,6 +239,7 @@ sub reproducegz {
   my ($bestvariant, $bestsize);
 
   foreach my $variant (@try) {
+    debug("Trying: " . join(", ", @$variant));
     doit_redir($tempin, $tempout, 'zgz', @$variant, @extraargs, '-c');
     if ($genversion == XDELTA && !comparefiles($orig, $tempout)) {
       # TODO: Remove when xdelta is phased out.
