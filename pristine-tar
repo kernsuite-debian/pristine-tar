@@ -10,7 +10,7 @@ B<pristine-tar> [-vdk] gendelta I<tarball> I<delta>
 
 B<pristine-tar> [-vdk] gentar I<delta> I<tarball>
 
-B<pristine-tar> [-vdk] [-m message] commit I<tarball> [I<upstream>]
+B<pristine-tar> [-vdk] [-m message] [-s signaturefile] commit I<tarball> [I<upstream>]
 
 B<pristine-tar> [-vdk] checkout I<tarball>
 
@@ -120,6 +120,14 @@ Don't clean up the temporary directory on exit.
 
 Use this option to specify a custom commit message to pristine-tar commit.
 
+=item -s signaturefile
+
+=item --signature-file=signaturefile
+
+Use this option to optionally commit or checkout an upstream signature
+file for the tarball. Note that extraction of signatures is not
+performed by default.
+
 =back
 
 =head1 EXAMPLES
@@ -198,6 +206,7 @@ use Pristine::Tar;
 use Pristine::Tar::Delta;
 use Pristine::Tar::Formats;
 use Pristine::Tar::DeltaTools;
+use File::Copy;
 use File::Path;
 use File::Basename;
 use Cwd qw{getcwd abs_path};
@@ -226,7 +235,7 @@ use constant {
   XDELTA_LONG => "2.0"
 };
 
-my $message;
+my ($message, $signature_file);
 my $genversion =
   version_from_env(XDELTA3, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
 
@@ -243,7 +252,8 @@ dispatch(
     verify   => [ \&verify, 1 ],
   },
   options => {
-    "m|message=s" => \$message,
+    "m|message=s"        => \$message,
+    "s|signature-file=s" => \$signature_file,
   },
 );
 
@@ -251,8 +261,9 @@ sub usage {
   print STDERR "Usage: pristine-tar [-vdk] gendelta tarball delta\n";
   print STDERR "       pristine-tar [-vdk] gentar delta tarball\n";
   print STDERR
-    "       pristine-tar [-vdk] [-m message] commit tarball [upstream]\n";
-  print STDERR "       pristine-tar [-vdk] checkout tarball\n";
+"       pristine-tar [-vdk] [-m message] [-s signaturefile] commit tarball [upstream]\n";
+  print STDERR
+    "       pristine-tar [-vdk] [-s signaturefile] checkout tarball\n";
   print STDERR "       pristine-tar [-vdk] verify tarball\n";
   print STDERR "       pristine-tar        list\n";
   exit 1;
@@ -780,8 +791,9 @@ sub checkoutdelta {
   my $branch    = "pristine-tar";
   my $deltafile = basename($tarball) . ".delta";
   my $idfile    = basename($tarball) . ".id";
+  my $sigfile   = basename($tarball) . ".asc";
 
-  my ($delta, $id);
+  my ($delta, $id, $signature);
 
   my $vcs = vcstype();
   if ($vcs eq "git") {
@@ -810,11 +822,19 @@ sub checkoutdelta {
     if (!length $id) {
       error "git show $branch:$idfile returned no id";
     }
+    if (defined $signature_file) {
+      # We only extract the signature if the user specifically requested
+      # it and we assume the data will fit comfortably into memory.
+      $signature = `git show $branch:\Q$sigfile\E`;
+      if ($?) {
+        error "git show $branch:$sigfile failed";
+      }
+    }
   } else {
     die "unsupported vcs $vcs";
   }
 
-  return ($delta, $id);
+  return ($delta, $id, $signature);
 }
 
 sub commitdelta {
@@ -825,6 +845,7 @@ sub commitdelta {
   my $branch    = "pristine-tar";
   my $deltafile = basename($tarball) . ".delta";
   my $idfile    = basename($tarball) . ".id";
+  my $sigfile   = basename($tarball) . ".asc";
   my $commit_message =
     defined $message
     ? $message
@@ -839,6 +860,9 @@ sub commitdelta {
     open(OUT, ">$tempdir/$idfile") || die "$tempdir/$idfile: $!";
     print OUT "$id\n";
     close OUT;
+    if (defined $signature_file) {
+      copy($signature_file, "$tempdir/$sigfile") || die "$tempdir/$sigfile: $!";
+    }
 
     # Commit the delta to a branch in git without affecting the
     # index, and without touching the working tree. Aka deep
@@ -867,6 +891,9 @@ sub commitdelta {
         "git ls-tree -r --full-name $branch | git update-index --index-info");
     }
     doit("git", "update-index", "--add", $deltafile, $idfile);
+    if (defined $signature_file) {
+      doit("git", "update-index", "--add", $sigfile);
+    }
     my $sha = `git write-tree`;
     if ($?) {
       error("git write-tree failed");
@@ -896,6 +923,9 @@ sub commitdelta {
     }
 
     message("committed $deltafile to branch $branch");
+    if (defined $signature_file) {
+      message("committed $sigfile to branch $branch");
+    }
   } else {
     die "unsupported vcs $vcs";
   }
@@ -910,6 +940,9 @@ sub commit {
   }
 
   check_file_exists($tarball);
+  if (defined $signature_file) {
+    check_file_exists($signature_file);
+  }
 
   my $tempdir = tempdir();
   my ($sourcedir, $id) = export($upstream);
@@ -937,7 +970,7 @@ sub checkout {
 
   check_directory_exists(dirname($tarball));
 
-  my ($delta, $id) = checkoutdelta($tarball);
+  my ($delta, $id, $signature) = checkoutdelta($tarball);
   my ($sourcedir, undef) = export($id);
   my $pid = open(GENTAR, "|-");
   if (!$pid) {
@@ -950,6 +983,13 @@ sub checkout {
   print GENTAR $delta;
   close GENTAR || error "failed to generate tarball";
   message("successfully generated $tarball") unless $opts{quiet};
+
+  if (defined $signature_file) {
+    open(OUT, ">$signature_file") || die "$signature_file: $!";
+    print OUT $signature;
+    close OUT;
+    message("successfully generated $signature_file") unless $opts{quiet};
+  }
 }
 
 sub list {
@@ -975,7 +1015,7 @@ sub verify {
 
   check_file_exists($tarball);
 
-  my ($deltadata, $id) = checkoutdelta($tarball);
+  my ($deltadata, $id, undef) = checkoutdelta($tarball);
 
   my $deltafile = File::Temp->new();
   print $deltafile $deltadata;
@@ -988,14 +1028,14 @@ sub verify {
 sub check_directory_exists {
   my $dirname = shift;
   if (!-d $dirname) {
-     error "The directory $dirname does not exist.";
+    error "The directory $dirname does not exist.";
   }
 }
 
 sub check_file_exists {
   my $filename = shift;
   if (!$filename eq "-" and !-f $filename) {
-     error "The file $filename does not exist.";
+    error "The file $filename does not exist.";
   }
 }
 
