@@ -1,3 +1,14 @@
+pristine-tar (1.41) UNRELEASED; urgency=medium
+
+  [ Tomasz Buchert ]
+  * Temporary fix for #871938: try all variants instead of being content
+  * Fix file checking (by Chris Lamb, closes #867545)
+
+  [ Chris Lamb ]
+  * Support storing and retrieval of upstream signatures. (Closes: #871809)
+
+ -- Tomasz Buchert <tomasz@debian.org>  Mon, 21 Aug 2017 07:52:44 +0200
+
 pristine-tar (1.40) unstable; urgency=medium
 
   [ Tomasz Buchert ]
