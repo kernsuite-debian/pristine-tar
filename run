@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -eu
+
+export PATH="$(dirname "$0"):$PATH"
+export PERL5LIB="$(dirname "$0")"
+
+exec "$@"
