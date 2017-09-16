@@ -6,7 +6,7 @@ pristine-tar - regenerate pristine tarballs
 
 =head1 SYNOPSIS
 
-B<pristine-tar> [-vdk] gendelta I<tarball> I<delta>
+B<pristine-tar> [-vdk] [-r] gendelta I<tarball> I<delta>
 
 B<pristine-tar> [-vdk] gentar I<delta> I<tarball>
 
@@ -128,6 +128,48 @@ Use this option to optionally commit or checkout an upstream signature
 file for the tarball. Note that extraction of signatures is not
 performed by default.
 
+=item -r
+
+=item --recompress
+
+Use this option to tell pristine-tar that it is OK to recompress the tarball if
+1) the tarball can't be regenerated or 2) the delta file produced from the
+original tarball is larger than a given threshold (see also
+I<-B>/I<--recompress-threshold-bytes> and
+I<-T>/I<--recompress-threshold-percent>).
+
+B<Note that this modifies the original tarball on disk>, and you probably
+shouldn't use it if you are also storing a upstream GPG signature of the
+original tarball (see I<--signature-file>).
+
+On the other hand, the actual contents of the tarball stored by pristine-tar
+B<will> be identical to the content of the upstream original tarbal even if
+the compressed tarball itself won't be bit-by-bit identical to the one released
+by upstream.
+
+A copy of the original tarball will be saved with ".backup" added to its
+filename.
+
+=item -B N
+
+=item --recompress-threshold-bytes=N
+
+Recompress original tarball if the generated delta is larger then I<N> bytes.
+Default: 524288000 (500 kB).
+
+If this option is passed explicitly in the command line, it implies
+I<--recompress>.
+
+=item -P N
+
+=item --recompress-threshold-percent=N
+
+Recompress original tarball if the generated delta is larger than I<N>% of the
+size of the original tarball. Default: 30.
+
+If this option is passed explicitly in the command line, it implies
+I<--recompress>.
+
 =back
 
 =head1 EXAMPLES
@@ -235,6 +277,9 @@ use constant {
   XDELTA_LONG => "2.0"
 };
 
+my $recompress = 0;
+my $recompress_theshold_bytes = 524288000;
+my $recompress_theshold_percent = 30;
 my ($message, $signature_file);
 my $genversion =
   version_from_env(XDELTA3, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
@@ -254,18 +299,19 @@ dispatch(
   options => {
     "m|message=s"        => \$message,
     "s|signature-file=s" => \$signature_file,
+    "r|recompress!"      => \$recompress,
+    "B|recompress-threshold-bytes=i" => \$recompress_theshold_bytes,
+    "P|recompress-threshold-percent=i" => \$recompress_theshold_percent,
   },
 );
 
 sub usage {
-  print STDERR "Usage: pristine-tar [-vdk] gendelta tarball delta\n";
-  print STDERR "       pristine-tar [-vdk] gentar delta tarball\n";
-  print STDERR
-"       pristine-tar [-vdk] [-m message] [-s signaturefile] commit tarball [upstream]\n";
-  print STDERR
-    "       pristine-tar [-vdk] [-s signaturefile] checkout tarball\n";
-  print STDERR "       pristine-tar [-vdk] verify tarball\n";
-  print STDERR "       pristine-tar        list\n";
+  print STDERR "Usage: pristine-tar [-vdkr] gendelta tarball delta\n";
+  print STDERR "       pristine-tar [-vdk]  gentar delta tarball\n";
+  print STDERR "       pristine-tar [-vdk]  [-m message] [-s signaturefile] commit tarball [upstream]\n";
+  print STDERR "       pristine-tar [-vdk]  [-s signaturefile] checkout tarball\n";
+  print STDERR "       pristine-tar [-vdk]  verify tarball\n";
+  print STDERR "       pristine-tar         list\n";
   exit 1;
 }
 
@@ -567,6 +613,8 @@ sub genmanifest {
   close OUT;
 }
 
+my $recompressed = 0;
+
 sub gendelta {
   my $tarball   = shift;
   my $deltafile = shift;
@@ -607,15 +655,27 @@ sub gendelta {
   # store a hash of the original tarball
   $delta{sha256sum} = get_sha256sum($tarball);
 
+  my $origtarball = $tarball;
+
   # Generate a wrapper file to recreate the compressed file.
   if (defined $compression) {
     $delta{wrapper} = "$tempdir/wrapper";
-    doit(
+    my @gen_wrapper = (
       "pristine-$compression", ($verbose ? "-v" : "--no-verbose"),
       ($debug ? "-d" : "--no-debug"), ($keep ? "-k" : "--no-keep"),
       "gendelta", $tarball,
       $delta{wrapper}
     );
+
+    if (try_doit(@gen_wrapper) != 0) {
+      if ($recompress && !$recompressed) {
+        recompress($tarball, 'Could not reproduce tarball as-is');
+        doit(@gen_wrapper);
+        $recompressed = 1;
+      } else {
+        exit(1);
+      }
+    }
     $tarball = "$tempdir/origtarball";
   }
 
@@ -671,6 +731,59 @@ sub gendelta {
       %delta,
     }
   );
+
+  if ($recompress && !$recompressed && defined($compression)) {
+    my $tarballsize = -s $origtarball;
+    my $deltasize= -s $deltafile;
+    if ($deltasize > $recompress_theshold_bytes || 100 * $deltasize / $tarballsize >= $recompress_theshold_percent) {
+      # try again
+      recompress($origtarball, "Generated delta is too large");
+      $recompressed = 1;
+      my $newdeltafile = $deltafile . '.new';
+      gendelta($origtarball, $newdeltafile, %opts);
+      my $newdeltasize = -s $newdeltafile;
+      if ($newdeltasize < $deltasize) {
+        unlink($deltafile) or die("unlink $deltafile: $!");
+        rename($newdeltafile, $deltafile) or die("rename $newdeltafile $deltafile: $!");
+      } else {
+        unlink($newdeltafile) or die("unlink $newdeltafile: $!");
+        unlink($origtarball) or die("unlink $origtarball: $!");
+        rename($origtarball . ".backup", $origtarball) or die("rename $origtarball $origtarball.backup: $!");
+        print STDERR "warning: recompressing didn't help, delta did not get smaller\n";
+        print STDERR "         restoring original tarball\n";
+      }
+    }
+  }
+}
+
+sub recompress {
+  my $tarball = shift;
+  my $reason = shift;
+
+  my $backup = $tarball . '.backup';
+  print STDERR "warning: $reason.\n";
+  print STDERR "         Let's recompress the tarball, and try again.\n";
+  print STDERR "         The original file will be renamed to $backup.\n";
+
+  my ($uncompress, $compress);
+  if (is_gz($tarball)) {
+    $uncompress = 'gunzip';
+    $compress = 'gzip';
+  } elsif (is_bz2($tarball)) {
+    $uncompress = 'bunzip2';
+    $compress = 'bzip2';
+  } elsif (is_xz($tarball)) {
+    $uncompress = 'unxz';
+    $compress = 'xz';
+  } else {
+    error("unsupported compression: $tarball");
+  }
+
+  my $tempdir = tempdir();
+  my $tempfile = "$tempdir/uncompressed";
+  doit('mv', '-f', $tarball, $backup);
+  doit_redir($backup, $tempfile, $uncompress, '-');
+  doit_redir($tempfile, $tarball, $compress, '-');
 }
 
 sub get_sha256sum {
