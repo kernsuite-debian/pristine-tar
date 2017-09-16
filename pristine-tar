@@ -222,6 +222,14 @@ index; none of that will be touched by "checkout" or "commit".
 
 Specifies a location to place temporary files, other than the default.
 
+=item B<PRISTINE_TAR>
+
+Defines command line options to be assumed by pristine-tar. Any options passed
+explicitly on the command line will override those.
+
+Options will be split on whitespaces, so if you want to pass an option that
+needs an argument, use the I<--opt=arg> syntax instead of I<--opt arg>.
+
 =item B<PRISTINE_ALL_XDELTA>
 
 Defines the underlying binary delta tool to be used for new deltas. Supported
@@ -283,6 +291,8 @@ my $recompress_theshold_percent = 30;
 my ($message, $signature_file);
 my $genversion =
   version_from_env(XDELTA3, "xdelta" => XDELTA, "xdelta3" => XDELTA3);
+
+unshift(@ARGV, split(/\s+/, $ENV{PRISTINE_TAR} || ''));
 
 dispatch(
   commands => {
