@@ -3,5 +3,9 @@
 exec 2>&1
 set -ex
 
+test -d test/samples/regression-test-suite ||  \
+  git clone --depth=1 \
+    https://anonscm.debian.org/git/collab-maint/pristine-tar-tests.git \
+    test/samples/regression-test-suite
 export PRISTINE_ALL_XDELTA=xdelta
 exec perl test.pl

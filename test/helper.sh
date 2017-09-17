@@ -75,3 +75,14 @@ assertFailure() {
   rc=$?
   assertNotEquals 0 "$rc"
 }
+
+silent_run() {
+  local rc
+  rc=0
+  "$@" > log 2>&1 || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    cat log
+  fi
+  rm -f log
+  return "$rc"
+}
