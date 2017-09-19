@@ -328,7 +328,6 @@ sub usage {
   print STDERR "       pristine-tar [-vdk]  [-s signaturefile] checkout tarball\n";
   print STDERR "       pristine-tar [-vdk]  verify tarball\n";
   print STDERR "       pristine-tar         list\n";
-  exit 1;
 }
 
 sub unquote_filename {
