@@ -554,7 +554,8 @@ static
 Bool testStream ( FILE *zStream )
 {
    BZFILE* bzf = NULL;
-   Int32   bzerr, bzerr_dummy, ret, streamNo, i;
+   Int32   bzerr, bzerr_dummy, ret, nread, streamNo, i;
+   UChar   obuf[5000];
    UChar   unused[BZ_MAX_UNUSED];
    Int32   nUnused;
    void*   unusedTmpV;
@@ -576,6 +577,7 @@ Bool testStream ( FILE *zStream )
       streamNo++;
 
       while (bzerr == BZ_OK) {
+         nread = BZ2_bzRead ( &bzerr, bzf, obuf, 5000 );
          if (bzerr == BZ_DATA_ERROR_MAGIC) goto errhandler;
       }
       if (bzerr != BZ_STREAM_END) goto errhandler;
