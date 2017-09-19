@@ -118,8 +118,14 @@ dispatch(
 );
 
 sub usage {
-  print STDERR "Usage: pristine-gz [-vdk] gendelta file.gz delta\n";
-  print STDERR "       pristine-gz [-vdk] gengz delta file\n";
+  print STDERR "Usage: pristine-gz [OPTIONS] gendelta file.gz delta
+       pristine-gz [OPTIONS] gengz delta file
+Options:
+       -d, --debug            Turn on debugging output
+       -v, --verbose          Turn on verbose output
+       -k, --keep             Don't delete temporary files
+       -h, --help             Display usage information
+"
 }
 
 sub readgzip {

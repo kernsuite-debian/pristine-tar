@@ -322,12 +322,28 @@ dispatch(
 );
 
 sub usage {
-  print STDERR "Usage: pristine-tar [-vdkr] gendelta tarball delta\n";
-  print STDERR "       pristine-tar [-vdk]  gentar delta tarball\n";
-  print STDERR "       pristine-tar [-vdk]  [-m message] [-s signaturefile] commit tarball [upstream]\n";
-  print STDERR "       pristine-tar [-vdk]  [-s signaturefile] checkout tarball\n";
-  print STDERR "       pristine-tar [-vdk]  verify tarball\n";
-  print STDERR "       pristine-tar         list\n";
+  print STDERR "Usage: pristine-tar [OPTIONS] gendelta tarball delta
+       pristine-tar [OPTIONS] gentar delta tarball\
+       pristine-tar [OPTIONS] commit tarball [upstream]
+       pristine-tar [OPTIONS] checkout tarball
+       pristine-tar [OPTIONS] verify tarball
+       pristine-tar [OPTIONS] list
+Options:
+       -d, --debug               Turn on debugging output
+       -v, --verbose             Turn on verbose output
+       -k, --keep                Don't delete temporary files
+       -h, --help                Display usage information
+       -m MSG, --message=MSG     Set commit message
+       -s SIG, --signature-file  Set signature file to be stored
+                                 together with the tarball
+       -r, --recompress          Recompress original tarball if needed
+       -B N, --recompress-threshold-bytes=N
+                                 Recompress tarball if the delta file is
+                                 larger than N bytes.
+       -B N, --recompress-threshold-percent=N
+                                 Recompress tarball if the delta file is
+                                 larger than N% of the tarball size.
+";
 }
 
 sub unquote_filename {

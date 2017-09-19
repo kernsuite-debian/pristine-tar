@@ -107,8 +107,14 @@ dispatch(
 );
 
 sub usage {
-  print STDERR "Usage: pristine-bz2 [-vdkt] gendelta file.bz2 delta\n";
-  print STDERR "       pristine-bz2 [-vdkt] genbz2 delta file\n";
+  print STDERR "Usage: pristine-bz2 [OPTIONS] gendelta file.bz2 delta
+       pristine-bz2 [OPTIONS] genbz2 delta file
+Options:
+       -d, --debug            Turn on debugging output
+       -v, --verbose          Turn on verbose output
+       -k, --keep             Don't delete temporary files
+       -h, --help             Display usage information
+";
 }
 
 sub readbzip2 {

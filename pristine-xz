@@ -97,8 +97,14 @@ dispatch(
 );
 
 sub usage {
-  print STDERR "Usage: pristine-xz [-vdkt] gendelta file.xz delta\n";
-  print STDERR "       pristine-xz [-vdkt] genxz delta file\n";
+  print STDERR "Usage: pristine-xz [OPTIONS] gendelta file.xz delta
+       pristine-xz [OPTIONS] genxz delta file
+Options:
+       -d, --debug            Turn on debugging output
+       -v, --verbose          Turn on verbose output
+       -k, --keep             Don't delete temporary files
+       -h, --help             Display usage information
+";
 }
 
 sub assign_fields {
