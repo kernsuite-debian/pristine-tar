@@ -766,7 +766,7 @@ sub gendelta {
   if ($recompress && !$recompressed && defined($compression)) {
     my $tarballsize = -s $origtarball;
     my $deltasize= -s $deltafile;
-    if ($deltasize > $recompress_theshold_bytes || 100 * $deltasize / $tarballsize >= $recompress_theshold_percent) {
+    if ($deltasize > $recompress_theshold_bytes || 100 * $deltasize / $tarballsize > $recompress_theshold_percent) {
       # try again
       recompress($origtarball, "Generated delta is too large");
       $recompressed = 1;
