@@ -275,7 +275,7 @@ $ENV{LANG} = 'C';
 delete $ENV{TAR_OPTIONS};
 delete $ENV{TAPE};
 
-# Ask tar to please be compatable with version 1.26.
+# Ask tar to please be compatible with version 1.26.
 # In version 1.27, it changed some fields used in longlink entries.
 $ENV{PRISTINE_TAR_COMPAT} = 1;
 

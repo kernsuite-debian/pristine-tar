@@ -206,7 +206,7 @@ sub predict_xz_args {
         '64MiB' => ['9'],
       );
       $presets = $lzma2_presets_from_dict_size_of{$dict_size};
-      die "Unkown dict size: $dict_size\n"
+      die "Unknown dict size: $dict_size\n"
         if (!defined($presets));
     }
     if (scalar(@$blocks) > 1) {
