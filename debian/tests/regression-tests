@@ -22,10 +22,10 @@ fi
 
 cd pristine-tar-tests
 rc=0
-mispipe ./testall 'tee LOG' || rc=$?
+mispipe ./testall 'tee data.yaml' || rc=$?
 
 if [ -n "${AUTOPKGTEST_ARTIFACTS:-}" ]; then
-    cp LOG "$AUTOPKGTEST_ARTIFACTS"/
+    cp data.yaml "$AUTOPKGTEST_ARTIFACTS"/
 fi
 
 exit $rc
