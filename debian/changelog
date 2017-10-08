@@ -15,6 +15,7 @@ pristine-tar (1.42) unstable; urgency=medium
   * Add bug-report preamble for reportbug
   * zgz: fix typo in manpage
   * Use external test case repository as regression test suite
+  * Bump Standards-Version to 4.1.1; no changes needed
 
   [ Edward Betts ]
   * correct spelling mistakes
